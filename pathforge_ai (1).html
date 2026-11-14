@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PathForge AI | Intelligent Career Architecture</title>
+    
+    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons (Lucide) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Chart.js & Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ink: '#0F172A',
+                        cream: '#F4F6FA',
+                        coral: '#2563EB',
+                        teal: '#0D9488',
+                        sunshine: '#F59E0B',
+                        lavender: '#F1F5F9',
+                        lime: '#10B981',
+                        slate200: '#E2E8F0'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                        hand: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'spin-slow': 'spin 8s linear infinite',
+                        'pop-in': 'popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+                    },
+                    keyframes: {
+                        float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-8px)' } },
+                        popIn: { '0%': { opacity: '0', transform: 'scale(0.95)' }, '100%': { opacity: '1', transform: 'scale(1)' } },
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS for SaaS UI -->
+    <style>
+        body {
+            background-color: #F4F6FA;
+            color: #0F172A;
+            background-image: radial-gradient(circle at 100% 0%, #FFFFFF 0%, transparent 50%), radial-gradient(circle at 0% 100%, #E2E8F0 0%, transparent 50%);
+            background-attachment: fixed;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        .saas-card {
+            background-color: #ffffff;
+            border: 1px solid #E2E8F0;
+            border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+            transition: all 0.2s ease;
+        }
+        
+        .saas-card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
+        }
+
+        .saas-btn {
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(15, 23, 42, 0.05);
+            cursor: pointer;
+        }
+        
+        .saas-btn:active {
+            transform: translateY(0) !important;
+            box-shadow: none !important;
+        }
+        
+        .saas-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(15, 23, 42, 0.1);
+        }
+
+        .saas-input {
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            background-color: #F8FAFC;
+        }
+        .saas-input:focus {
+            outline: none;
+            border-color: #2563EB;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            background-color: #FFFFFF;
+        }
+
+        .view-section { display: none; }
+        .view-section.active { display: block; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+        .typing-dot {
+            width: 5px; height: 5px; background-color: #64748B; border-radius: 50%; display: inline-block;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+        
+        .saas-checkbox {
+            appearance: none; width: 20px; height: 20px; border: 1px solid #CBD5E1; border-radius: 4px;
+            background: #fff; cursor: pointer; position: relative; transition: all 0.2s;
+        }
+        .saas-checkbox:checked { background: #0D9488; border-color: #0D9488; }
+        .saas-checkbox:checked::after {
+            content: '✔'; color: white; font-size: 12px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        }
+
+        .strike-through { text-decoration: line-through; color: #94A3B8; }
+
+        #main-content {
+            transition: padding-right 0.3s ease;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-coral/20 relative">
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 saas-card px-6 py-3 bg-white z-[100] transform -translate-y-24 opacity-0 transition-all duration-300 flex items-center gap-3 border-l-4 border-l-teal">
+        <i data-lucide="bell" class="w-5 h-5 text-teal"></i>
+        <span id="toast-msg" class="text-sm font-semibold text-ink">Notification</span>
+    </div>
+
+    <!-- OVERLAY FOR ADAPTIVE AI -->
+    <div id="adaptive-overlay" class="fixed inset-0 bg-ink/50 backdrop-blur-sm z-[200] hidden flex-col items-center justify-center text-center">
+        <div class="saas-card p-10 bg-white flex flex-col items-center max-w-md animate-pop-in">
+            <div class="w-20 h-20 mb-6 flex items-center justify-center animate-pulse">
+                <svg width="60" height="60" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" fill="url(#ai-grad-overlay)" />
+                    <circle cx="50" cy="50" r="20" fill="#FFFFFF" class="animate-pulse" />
+                    <defs>
+                        <linearGradient id="ai-grad-overlay" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#2563EB"/>
+                            <stop offset="100%" stop-color="#0D9488"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <h2 class="font-display font-bold text-2xl text-ink mb-2">Mentor is Adapting</h2>
+            <p class="text-slate-600 text-sm mb-6 leading-relaxed">Based on your assessment, the neural framework is dynamically updating your roadmap to ensure foundational mastery.</p>
+            <div class="flex gap-1">
+                <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= LANDING PAGE ================= -->
+    <div id="view-landing" class="view-section active min-h-screen flex flex-col relative overflow-hidden">
+        <header class="p-6 flex justify-between items-center max-w-7xl mx-auto w-full z-10">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-coral rounded-xl flex items-center justify-center shadow-md">
+                    <i data-lucide="box" class="w-6 h-6 text-white"></i>
+                </div>
+                <span class="font-display font-bold text-xl tracking-tight text-ink">PathForge<span class="text-coral">AI</span></span>
+            </div>
+        </header>
+
+        <main class="flex-1 flex flex-col items-center justify-center px-6 z-10 py-12">
+            <div class="text-center max-w-4xl mx-auto mb-16 relative">
+                <div class="inline-block bg-white text-coral px-4 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase mb-6 border border-slate200 shadow-sm">
+                    Intelligent Career Architecture
+                </div>
+                
+                <h1 class="font-display text-5xl md:text-6xl font-extrabold mb-6 leading-[1.15] text-ink">
+                    Know where you stand.<br>
+                    <span class="text-coral">Know what to learn next.</span>
+                </h1>
+                <p class="text-slate-600 text-lg md:text-xl mb-10 max-w-2xl mx-auto font-medium">
+                    Stop guessing. Our AI Agents analyze your skills, build a dynamic roadmap, and mentor you every step of the way to your target career.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <button onclick="startApp(false)" class="w-full sm:w-auto px-8 py-3.5 bg-coral text-white text-base saas-btn flex items-center justify-center gap-2">
+                        Start My Analysis <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    </button>
+                    <button onclick="startApp(true)" class="w-full sm:w-auto px-8 py-3.5 bg-white text-ink border border-slate200 text-base saas-btn flex items-center justify-center gap-2">
+                        <i data-lucide="play-circle" class="w-5 h-5 text-teal"></i> Try Demo Learner
+                    </button>
+                </div>
+            </div>
+
+            <!-- Professional Animated Flow Diagram -->
+            <div class="w-full max-w-4xl mx-auto mt-10 hidden md:block">
+                <svg viewBox="0 0 800 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Path -->
+                    <path d="M 100 100 Q 250 150 400 100 T 700 100" stroke="#CBD5E1" stroke-width="2" stroke-dasharray="6 6" class="animate-[dataFlow_2s_linear_infinite]"/>
+                    <style>@keyframes dataFlow { from { stroke-dashoffset: 40; } to { stroke-dashoffset: 0; } }</style>
+                    
+                    <!-- Nodes -->
+                    <!-- 1. Skills -->
+                    <rect x="50" y="60" width="100" height="80" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2" />
+                    <text x="100" y="105" font-family="Plus Jakarta Sans" font-weight="600" font-size="14" text-anchor="middle" fill="#0F172A">1. Skills</text>
+                    
+                    <!-- 2. AI Agents -->
+                    <rect x="330" y="40" width="140" height="100" rx="12" fill="#2563EB" />
+                    <text x="400" y="90" font-family="Plus Jakarta Sans" font-weight="600" font-size="16" text-anchor="middle" fill="#FFF">2. AI Swarm</text>
+                    <text x="400" y="115" font-family="Inter" font-weight="500" font-size="12" text-anchor="middle" fill="#DBEAFE">Analyzes Gaps</text>
+
+                    <!-- 3. Roadmap -->
+                    <rect x="630" y="50" width="120" height="90" rx="12" fill="#0D9488" />
+                    <text x="690" y="100" font-family="Plus Jakarta Sans" font-weight="600" font-size="14" text-anchor="middle" fill="#FFF">3. Roadmap</text>
+                </svg>
+            </div>
+        </main>
+    </div>
+
+    <!-- ================= MAIN APP LAYOUT ================= -->
+    <div id="app-layout" class="hidden min-h-screen flex flex-col overflow-hidden relative">
+        
+        <!-- TOP NAVIGATION (STEPPER) -->
+        <header class="h-[72px] bg-white border-b border-slate-200 z-40 shrink-0 flex items-center px-4 md:px-8 justify-between sticky top-0 shadow-sm">
+            <div class="flex items-center gap-3 shrink-0 mr-4">
+                <div class="w-8 h-8 bg-coral rounded-lg flex items-center justify-center">
+                    <i data-lucide="box" class="w-5 h-5 text-white"></i>
+                </div>
+                <span class="font-display font-bold text-lg hidden lg:block text-ink">PathForge</span>
+            </div>
+            
+            <!-- Horizontal Stepper -->
+            <nav class="flex-1 max-w-2xl mx-auto flex items-center justify-between relative">
+                <div class="absolute left-0 right-0 top-1/2 h-[2px] bg-slate-100 -translate-y-1/2 z-0"></div>
+                <div id="stepper-progress" class="absolute left-0 top-1/2 h-[2px] bg-coral -translate-y-1/2 z-0 transition-all duration-500" style="width: 0%;"></div>
+                
+                <!-- Steps injected via JS logic -->
+                <div id="stepper-nodes" class="relative z-10 w-full flex justify-between">
+                    <button onclick="navTo('profile')" class="flex flex-col items-center gap-1.5 group">
+                        <div id="step-icon-profile" class="w-8 h-8 rounded-full bg-coral flex items-center justify-center text-white font-bold transition-all shadow-sm"><i data-lucide="user" class="w-4 h-4"></i></div>
+                        <span id="step-text-profile" class="text-[11px] font-bold text-ink font-display hidden sm:block">Profile</span>
+                    </button>
+                    <button onclick="navTo('analysis')" id="btn-nav-analysis" disabled class="flex flex-col items-center gap-1.5 group">
+                        <div id="step-icon-analysis" class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 font-bold transition-all"><i data-lucide="pie-chart" class="w-4 h-4"></i></div>
+                        <span id="step-text-analysis" class="text-[11px] font-semibold text-slate-400 font-display hidden sm:block">Analysis</span>
+                    </button>
+                    <button onclick="navTo('roadmap')" id="btn-nav-roadmap" disabled class="flex flex-col items-center gap-1.5 group">
+                        <div id="step-icon-roadmap" class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 font-bold transition-all"><i data-lucide="map" class="w-4 h-4"></i></div>
+                        <span id="step-text-roadmap" class="text-[11px] font-semibold text-slate-400 font-display hidden sm:block">Roadmap</span>
+                    </button>
+                    <button onclick="navTo('brainbreak')" id="btn-nav-brainbreak" disabled class="flex flex-col items-center gap-1.5 group">
+                        <div id="step-icon-brainbreak" class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 font-bold transition-all"><i data-lucide="layout-grid" class="w-4 h-4"></i></div>
+                        <span id="step-text-brainbreak" class="text-[11px] font-semibold text-slate-400 font-display hidden sm:block">Modules</span>
+                    </button>
+                    <button onclick="navTo('assess')" id="btn-nav-assess" disabled class="flex flex-col items-center gap-1.5 group">
+                        <div id="step-icon-assess" class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 font-bold transition-all"><i data-lucide="target" class="w-4 h-4"></i></div>
+                        <span id="step-text-assess" class="text-[11px] font-semibold text-slate-400 font-display hidden sm:block">Assess</span>
+                    </button>
+                </div>
+            </nav>
+
+            <div class="flex items-center gap-4 shrink-0 ml-4">
+                <div class="text-right bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 hidden md:block">
+                    <div class="text-[9px] font-bold uppercase tracking-wider text-slate-500">Level <span id="ui-level" class="text-ink text-xs">1</span></div>
+                    <div id="ui-xp" class="text-xs font-display font-bold text-coral">0 XP</div>
+                </div>
+                <!-- Mobile toggle for sidebar -->
+                <button class="lg:hidden saas-btn p-2 bg-slate-100 text-slate-600 rounded-lg" onclick="toggleMentorPanel()">
+                    <i data-lucide="bot" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="flex flex-1 overflow-hidden relative">
+            
+            <!-- CENTER: Main Content Area -->
+            <main class="flex-1 overflow-y-auto relative scroll-smooth p-4 md:p-8 w-full transition-all duration-300" id="main-content">
+                <div class="max-w-4xl mx-auto w-full pb-24">
+                    
+                    <!-- VIEW 1: PROFILE SETUP -->
+                    <div id="view-profile" class="view-section active">
+                        <div class="mb-8 text-center mt-4">
+                            <h2 class="text-3xl font-display font-bold mb-2 text-ink">Build Your Profile</h2>
+                            <p class="text-slate-500 font-medium">Establish your current capabilities and define your objective.</p>
+                        </div>
+
+                        <div class="saas-card p-6 md:p-10 max-w-2xl mx-auto space-y-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">Legal Full Name</label>
+                                <input type="text" id="input-name" placeholder="E.g. Jane Doe" class="w-full saas-input px-4 py-3 text-sm">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2">Target Career Role</label>
+                                <select id="input-target" class="w-full saas-input px-4 py-3 text-sm cursor-pointer appearance-none">
+                                    <option value="Full Stack Developer">Full Stack Developer</option>
+                                    <option value="Data Scientist">Data Scientist</option>
+                                    <option value="Machine Learning Engineer">Machine Learning Engineer</option>
+                                    <option value="Cybersecurity Analyst">Cybersecurity Analyst</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-2 flex items-center justify-between">
+                                    Current Technical Skills
+                                </label>
+                                
+                                <div class="flex flex-col sm:flex-row gap-3 mb-4">
+                                    <input type="text" id="new-skill-input" placeholder="e.g. React, Python" class="flex-1 saas-input px-4 py-3 text-sm">
+                                    <select id="new-skill-level" class="saas-input px-4 py-3 text-sm cursor-pointer">
+                                        <option value="Beginner">Beginner</option>
+                                        <option value="Intermediate">Intermediate</option>
+                                        <option value="Advanced">Advanced</option>
+                                    </select>
+                                    <button onclick="addSkillTag()" class="px-6 py-3 bg-coral text-white saas-btn text-sm">Add</button>
+                                </div>
+
+                                <div class="flex flex-wrap gap-2 p-4 bg-slate-50 border border-slate-200 rounded-xl min-h-[100px]" id="skill-tags">
+                                    <p class="text-slate-400 text-sm w-full text-center mt-4" id="skill-empty">No skills added yet.</p>
+                                </div>
+                            </div>
+
+                            <div class="pt-6 border-t border-slate-200">
+                                <button onclick="runAnalysis()" class="w-full py-3.5 bg-coral text-white saas-btn text-base flex items-center justify-center gap-2">
+                                    Analyze Telemetry <i data-lucide="zap" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VIEW 2: LOADING (Analysis) -->
+                    <div id="view-loading" class="view-section h-full flex flex-col items-center justify-center pt-20">
+                        <div class="w-20 h-20 mb-8 relative flex items-center justify-center">
+                             <svg width="80" height="80" viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="45" fill="url(#ai-grad-loading)" />
+                                <circle cx="50" cy="50" r="20" fill="#FFFFFF" class="animate-pulse" />
+                                <defs>
+                                    <linearGradient id="ai-grad-loading" x1="0" y1="0" x2="1" y2="1">
+                                        <stop offset="0%" stop-color="#2563EB"/>
+                                        <stop offset="100%" stop-color="#0D9488"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-display font-bold mb-2 text-ink">Processing Data...</h2>
+                        <p class="text-slate-500 font-medium text-sm">Agents evaluating market alignment.</p>
+                    </div>
+
+                    <!-- VIEW 3: ANALYSIS DASHBOARD -->
+                    <div id="view-analysis" class="view-section space-y-8">
+                        
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 bg-white p-6 saas-card border-l-4 border-l-coral relative">
+                            <div>
+                                <h2 class="text-2xl font-display font-bold mb-1 text-ink">Alignment Complete</h2>
+                                <p class="text-slate-600 text-sm">Target Role: <span id="dash-target" class="font-bold text-coral">Full Stack Developer</span>.</p>
+                            </div>
+                            <button onclick="navTo('roadmap')" class="px-5 py-2.5 bg-slate-100 text-ink saas-btn text-sm flex items-center justify-center gap-2">
+                                View Roadmap <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+
+                        <!-- Stage Tracker -->
+                        <div class="saas-card p-6 md:p-8">
+                            <h3 class="font-display font-semibold text-sm uppercase tracking-wider text-slate-500 mb-6">Current Stage</h3>
+                            <div class="relative flex justify-between items-center max-w-3xl mx-auto px-2 sm:px-6">
+                                <!-- Background Line -->
+                                <div class="absolute top-1/2 left-6 right-6 h-1 bg-slate-100 -translate-y-1/2 z-0"></div>
+                                <!-- Active Line -->
+                                <div id="stage-line" class="absolute top-1/2 left-6 h-1 bg-coral -translate-y-1/2 z-0 transition-all duration-1000" style="width: 25%;"></div>
+                                
+                                <div id="stage-nodes" class="relative z-10 flex justify-between w-full">
+                                    <!-- Injected -->
+                                </div>
+                            </div>
+                            <p id="stage-desc" class="text-center text-sm font-medium mt-10 text-slate-600">You have mastered the basics. Now it's time to build complex systems.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <!-- Circular Match Gauge -->
+                            <div class="saas-card p-6 flex flex-col items-center justify-center relative">
+                                <h3 class="font-display font-bold text-sm text-slate-600 mb-4 uppercase tracking-wider">Career Match</h3>
+                                <div class="w-40 h-40 relative">
+                                    <canvas id="matchGauge"></canvas>
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-2">
+                                        <span id="match-score-text" class="text-3xl font-display font-bold text-ink">0%</span>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-center mt-6 font-medium text-slate-500">Est. completion:<br><span class="text-base font-bold text-ink" id="est-time">~14 wks</span></p>
+                            </div>
+
+                            <!-- Radar Chart -->
+                            <div class="lg:col-span-2 saas-card p-6 flex flex-col">
+                                <h3 class="font-display font-bold text-sm text-slate-600 mb-4 uppercase tracking-wider">Mastery vs Required</h3>
+                                <div class="flex-1 w-full relative min-h-[220px]">
+                                    <canvas id="radarChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Breakdown Cards -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="saas-card p-5 border-t-4 border-t-lime">
+                                <h3 class="font-display font-bold text-base mb-4 flex items-center gap-2 text-ink"><i data-lucide="check-circle-2" class="w-5 h-5 text-lime"></i> Strengths</h3>
+                                <ul class="space-y-2 text-sm text-slate-600" id="list-strengths"></ul>
+                            </div>
+                            
+                            <div class="saas-card p-5 border-t-4 border-t-sunshine">
+                                <h3 class="font-display font-bold text-base mb-4 flex items-center gap-2 text-ink"><i data-lucide="trending-up" class="w-5 h-5 text-sunshine"></i> Improve</h3>
+                                <ul class="space-y-2 text-sm text-slate-600" id="list-improve"></ul>
+                            </div>
+
+                            <div class="saas-card p-5 border-t-4 border-t-coral bg-slate-50">
+                                <h3 class="font-display font-bold text-base mb-4 flex items-center gap-2 text-ink"><i data-lucide="alert-triangle" class="w-5 h-5 text-coral"></i> Missing</h3>
+                                <ul class="space-y-2 text-sm text-slate-600 font-medium" id="list-gaps"></ul>
+                            </div>
+                        </div>
+
+                        <!-- What To Do Next -->
+                        <div class="saas-card p-6 md:p-8 bg-white border-l-4 border-l-teal relative overflow-hidden">
+                            <h3 class="font-display font-bold text-lg mb-6 text-ink">Action Plan</h3>
+                            <div class="space-y-3 relative z-10" id="next-actions-list">
+                                <!-- Injected -->
+                            </div>
+                            <button onclick="navTo('roadmap')" class="mt-6 w-full py-3 bg-slate-100 text-ink saas-btn text-sm">View Detailed Roadmap</button>
+                        </div>
+                    </div>
+
+                    <!-- VIEW 4: ROADMAP -->
+                    <div id="view-roadmap" class="view-section space-y-6">
+                        <div class="mb-6">
+                            <h2 class="text-2xl font-display font-bold mb-1 text-ink">Learning Roadmap</h2>
+                            <p class="text-slate-500 text-sm">A specialized sequential path curated by the Curriculum Agent.</p>
+                        </div>
+
+                        <div class="relative mt-4">
+                            <!-- Vertical line -->
+                            <div class="absolute left-[23px] top-4 bottom-4 w-[2px] bg-slate-200 z-0 hidden md:block"></div>
+                            <div class="space-y-5" id="roadmap-container">
+                                <!-- Items Injected by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VIEW 5: BRAIN BREAK (MINI GAMES) -->
+                    <div id="view-brainbreak" class="view-section space-y-6">
+                        <div class="bg-white p-6 md:p-8 saas-card flex flex-col md:flex-row items-center justify-between gap-6">
+                            <div>
+                                <h2 class="text-2xl font-display font-bold mb-1 flex items-center gap-2 text-ink"><i data-lucide="layout-grid" class="w-6 h-6 text-coral"></i> Skill Modules</h2>
+                                <p class="text-sm text-slate-500">Practice your knowledge with interactive reinforcement modules.</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="switchGame('memory')" class="saas-btn bg-slate-100 text-ink px-4 py-2 text-sm">Memory Match</button>
+                                <button onclick="switchGame('trivia')" class="saas-btn bg-coral text-white px-4 py-2 text-sm">Tech Trivia</button>
+                                <button onclick="switchGame('scramble')" class="saas-btn bg-teal text-white px-4 py-2 text-sm">Scramble</button>
+                            </div>
+                        </div>
+
+                        <!-- Game 1: Memory -->
+                        <div id="game-memory" class="game-view bg-white saas-card p-6 md:p-10 active text-center">
+                            <h3 class="font-display font-bold text-xl mb-2 text-ink">Memory Match</h3>
+                            <p class="mb-6 text-sm text-slate-500">Find the matching concepts.</p>
+                            <div id="memory-grid" class="grid grid-cols-4 gap-3 max-w-lg mx-auto mb-6">
+                                <!-- JS injected -->
+                            </div>
+                            <button onclick="initMemoryGame()" class="saas-btn bg-slate-100 text-ink px-6 py-2.5 text-sm">Reset Module</button>
+                        </div>
+
+                        <!-- Game 2: Trivia -->
+                        <div id="game-trivia" class="game-view bg-white saas-card p-6 md:p-10 hidden text-center">
+                            <h3 class="font-display font-bold text-xl mb-2 text-ink">Tech Trivia</h3>
+                            <p class="mb-6 text-sm text-slate-500">Answer accurately to validate knowledge.</p>
+                            <div id="trivia-container" class="max-w-md mx-auto">
+                                <div id="trivia-q" class="text-lg font-semibold mb-6 bg-slate-50 p-6 rounded-xl border border-slate-200">Question here?</div>
+                                <div id="trivia-opts" class="space-y-3"></div>
+                            </div>
+                        </div>
+
+                        <!-- Game 3: Scramble -->
+                        <div id="game-scramble" class="game-view bg-white saas-card p-6 md:p-10 hidden text-center">
+                            <h3 class="font-display font-bold text-xl mb-2 text-ink">Code Scramble</h3>
+                            <p class="mb-6 text-sm text-slate-500">Unscramble the term based on the hint.</p>
+                            <div class="max-w-md mx-auto">
+                                <div class="bg-slate-50 p-4 border border-slate-200 rounded-xl mb-6">
+                                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Hint</p>
+                                    <p id="scramble-hint" class="font-semibold text-base text-ink">A popular JS framework</p>
+                                </div>
+                                <div id="scramble-word" class="font-display font-bold text-3xl tracking-widest mb-6 text-coral">C R E T A</div>
+                                <div class="flex gap-2">
+                                    <input type="text" id="scramble-input" class="saas-input flex-1 px-4 py-2.5 text-center font-semibold text-lg uppercase" placeholder="TYPE HERE">
+                                    <button onclick="checkScramble()" class="saas-btn bg-coral text-white px-6 py-2.5">Verify</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- VIEW 6: ASSESSMENTS (Quiz) -->
+                    <div id="view-assess" class="view-section space-y-6">
+                        <div class="mb-6">
+                            <h2 class="text-2xl font-display font-bold mb-1 text-ink">Validate Mastery</h2>
+                            <p class="text-sm text-slate-500">Take assessments to unlock advanced modules on your roadmap.</p>
+                        </div>
+
+                        <div id="assessment-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                            <!-- Injected via JS -->
+                        </div>
+
+                        <!-- Quiz UI -->
+                        <div id="quiz-ui" class="hidden saas-card p-6 md:p-10 max-w-2xl mx-auto bg-white border-t-4 border-t-coral">
+                            <div class="flex justify-between font-bold text-slate-400 uppercase tracking-wider mb-4 text-[10px]">
+                                <span id="quiz-title">JavaScript Validation</span>
+                                <span class="text-coral">Question 1 of 3</span>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2 rounded-full mb-8 overflow-hidden">
+                                <div class="bg-coral h-full" style="width: 33%;"></div>
+                            </div>
+                            
+                            <h3 class="text-lg font-semibold mb-6 leading-relaxed text-ink bg-slate-50 p-5 rounded-xl border border-slate-200">
+                                What is the output of the following code?<br><br>
+                                <code class="bg-slate-800 text-slate-100 p-2 rounded block text-sm font-mono mt-2">console.log(typeof null);</code>
+                            </h3>
+                            
+                            <div class="space-y-3">
+                                <button onclick="submitAnswer(false)" class="w-full text-left p-4 bg-white border border-slate-200 rounded-lg hover:border-coral hover:bg-blue-50 transition-colors font-medium text-sm flex items-center justify-between group">
+                                    A) "object" <div class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-coral group-hover:bg-coral transition-colors"></div>
+                                </button>
+                                <button onclick="submitAnswer(true)" class="w-full text-left p-4 bg-white border border-slate-200 rounded-lg hover:border-coral hover:bg-blue-50 transition-colors font-medium text-sm flex items-center justify-between group">
+                                    B) "null" <div class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-coral group-hover:bg-coral transition-colors"></div>
+                                </button>
+                                <button onclick="submitAnswer(false)" class="w-full text-left p-4 bg-white border border-slate-200 rounded-lg hover:border-coral hover:bg-blue-50 transition-colors font-medium text-sm flex items-center justify-between group">
+                                    C) "undefined" <div class="w-4 h-4 rounded-full border border-slate-300 group-hover:border-coral group-hover:bg-coral transition-colors"></div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+
+            <!-- RIGHT SIDEBAR: AI Mentor & To-Do -->
+            <aside id="right-sidebar" class="w-[320px] lg:w-[380px] border-l border-slate-200 bg-white flex flex-col fixed inset-y-0 right-0 transform transition-transform duration-300 z-50 shadow-2xl lg:shadow-none">
+                
+                <!-- Mascot Header -->
+                <div class="p-5 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center shadow-sm" id="mascot-container">
+                            <svg width="24" height="24" viewBox="0 0 100 100" id="mascot-svg">
+                                <circle cx="50" cy="50" r="45" fill="url(#ai-grad)" />
+                                <circle cx="50" cy="50" r="15" fill="#FFFFFF" class="animate-pulse" id="mascot-mouth" />
+                                <defs>
+                                    <linearGradient id="ai-grad" x1="0" y1="0" x2="1" y2="1">
+                                        <stop offset="0%" stop-color="#2563EB"/>
+                                        <stop offset="100%" stop-color="#0D9488"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-display font-bold text-sm text-ink">AI Mentor</h3>
+                            <p class="text-[10px] font-semibold uppercase tracking-wider text-teal flex items-center gap-1"><span class="w-1.5 h-1.5 bg-teal rounded-full animate-pulse"></span> Active</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <button onclick="toggleMentorPanel()" class="p-1.5 text-slate-400 hover:bg-slate-200 rounded-lg transition-colors"><i data-lucide="minus" class="w-4 h-4"></i></button>
+                        <button onclick="toggleMentorPanel()" class="p-1.5 text-slate-400 hover:bg-slate-200 rounded-lg transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="flex border-b border-slate-200 bg-slate-50">
+                    <button onclick="switchSidebarTab('mentor')" id="tab-mentor" class="flex-1 py-3 text-xs font-semibold border-b-2 border-coral text-coral bg-white">Mentor Chat</button>
+                    <button onclick="switchSidebarTab('todo')" id="tab-todo" class="flex-1 py-3 text-xs font-semibold text-slate-500 hover:text-ink transition-colors border-b-2 border-transparent">Task List</button>
+                </div>
+
+                <!-- TAB 1: MENTOR CHAT -->
+                <div id="panel-mentor" class="flex-1 flex flex-col overflow-hidden bg-slate-50/50">
+                    <!-- Daily Quote -->
+                    <div class="p-4 border-b border-slate-100 bg-white">
+                        <p class="text-xs italic text-slate-600 font-medium" id="daily-quote">"Learning never exhausts the mind."</p>
+                    </div>
+
+                    <!-- Chat Feed -->
+                    <div class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar" id="mentor-chat-feed">
+                        <!-- Chat messages injected by JS -->
+                    </div>
+
+                    <!-- Chat Input & Chips -->
+                    <div class="p-4 border-t border-slate-200 bg-white">
+                        <div class="flex gap-2 overflow-x-auto no-scrollbar mb-3 pb-1" id="mentor-chips">
+                            <button onclick="sendChat('What should I learn today?')" class="whitespace-nowrap px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-[10px] font-semibold transition-colors">What to learn?</button>
+                            <button onclick="sendChat('Explain my roadmap')" class="whitespace-nowrap px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-[10px] font-semibold transition-colors">Explain roadmap</button>
+                            <button onclick="sendChat('I need a break')" class="whitespace-nowrap px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-[10px] font-semibold transition-colors">Take a break</button>
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="text" id="mentor-input" onkeypress="if(event.key==='Enter') sendChat()" placeholder="Ask your mentor..." class="flex-1 saas-input px-3 py-2 text-sm bg-slate-50">
+                            <button onclick="sendChat()" class="w-9 h-9 saas-btn bg-coral flex items-center justify-center text-white"><i data-lucide="send" class="w-4 h-4 ml-[-2px]"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: TO-DO LIST -->
+                <div id="panel-todo" class="flex-1 flex flex-col overflow-hidden bg-slate-50/50 hidden">
+                    <div class="p-4 border-b border-slate-200 bg-white">
+                        <div class="flex gap-2">
+                            <input type="text" id="todo-input" onkeypress="if(event.key==='Enter') addTodo()" placeholder="Add a task..." class="flex-1 saas-input px-3 py-2 text-sm bg-slate-50">
+                            <button onclick="addTodo()" class="w-9 h-9 saas-btn bg-teal flex items-center justify-center text-white"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+                    <div class="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar" id="todo-list">
+                        <!-- Tasks injected -->
+                    </div>
+                    <div class="p-4 border-t border-slate-200 bg-white text-center">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Progress</p>
+                        <div class="w-full bg-slate-100 h-2 rounded-full mt-2 overflow-hidden">
+                            <div id="todo-progress" class="bg-teal h-full transition-all duration-300" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
+    </div>
+
+    <!-- FAB for Mentor -->
+    <button id="fab-mentor" onclick="toggleMentorPanel()" class="fixed bottom-6 right-6 w-14 h-14 bg-coral text-white rounded-full shadow-lg flex items-center justify-center hover:scale-105 transition-transform z-[100] hidden">
+        <i data-lucide="bot" class="w-6 h-6"></i>
+        <span id="fab-dot" class="absolute top-0 right-0 w-3.5 h-3.5 bg-sunshine border-2 border-white rounded-full hidden"></span>
+    </button>
+
+    <!-- ================= JAVASCRIPT ================= -->
+    <script>
+        // --- STATE & UI LOGIC ---
+        let isMentorOpen = localStorage.getItem('pathforge_mentor_open') !== 'false';
+
+        function initMentorPanel() {
+            applyMentorPanelState();
+            window.addEventListener('resize', applyMentorPanelState);
+        }
+
+        function toggleMentorPanel() {
+            isMentorOpen = !isMentorOpen;
+            localStorage.setItem('pathforge_mentor_open', isMentorOpen);
+            applyMentorPanelState();
+            if(isMentorOpen) {
+                document.getElementById('fab-dot').classList.add('hidden');
+            }
+        }
+
+        function applyMentorPanelState() {
+            const sidebar = document.getElementById('right-sidebar');
+            const mainContent = document.getElementById('main-content');
+            const fab = document.getElementById('fab-mentor');
+            
+            if (isMentorOpen) {
+                sidebar.classList.remove('translate-x-full');
+                if (window.innerWidth >= 1024) {
+                    mainContent.style.paddingRight = '380px';
+                } else {
+                    mainContent.style.paddingRight = '0';
+                }
+                fab.classList.add('hidden');
+            } else {
+                sidebar.classList.add('translate-x-full');
+                mainContent.style.paddingRight = '0';
+                fab.classList.remove('hidden');
+            }
+        }
+
+        // --- DATA ---
+        const CAREER_DATA = {
+            "Full Stack Developer": { req: ["HTML/CSS", "JavaScript", "React", "Node.js", "SQL", "Python", "Git", "REST APIs", "TypeScript"] },
+            "Data Scientist": { req: ["Python", "SQL", "Math/Stats", "Machine Learning", "Pandas", "Data Viz", "R", "Jupyter", "Deep Learning"] },
+            "Machine Learning Engineer": { req: ["Python", "C++", "TensorFlow", "PyTorch", "Data Structures", "MLOps", "AWS/GCP", "SQL"] },
+            "Cybersecurity Analyst": { req: ["Networking", "Linux", "Python", "Ethical Hacking", "Firewalls", "Cryptography", "SIEM"] }
+        };
+        const STAGES = ["Beginner", "Foundation", "Intermediate", "Job-Ready", "Expert"];
+        const QUOTES = [
+            "Learning never exhausts the mind. - Da Vinci",
+            "Expertise is just thousands of mistakes. - Unknown",
+            "First solve the problem. Then, write the code. - John Johnson",
+            "Make it work, make it right, make it fast. - Kent Beck"
+        ];
+
+        let userState = {
+            name: "", skills: [], target: "Full Stack Developer", stage: "Beginner", match: 0, xp: 0, level: 1, hasFailedQuiz: false
+        };
+        let roadmapData = [];
+        let todoData = JSON.parse(localStorage.getItem('pathforge_todos')) || [
+            { id: 1, text: "Complete profile setup", done: false },
+            { id: 2, text: "Execute initial skill analysis", done: false }
+        ];
+        let radarChart, doughnutChart;
+
+        // --- INIT ---
+        window.addEventListener('load', () => {
+            lucide.createIcons();
+            initMentorPanel();
+            document.getElementById('daily-quote').innerText = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+            renderTodos();
+            addMentorMsg("System initialized. I am your AI Mentor. Ready to accelerate your career? Let's construct your profile.", "happy");
+        });
+
+        function startApp(isDemo) {
+            document.getElementById('view-landing').classList.remove('active');
+            document.getElementById('app-layout').classList.remove('hidden');
+            applyMentorPanelState(); // ensure layout is correct on enter
+            
+            if(isDemo) {
+                document.getElementById('input-name').value = "Priya";
+                document.getElementById('input-target').value = "Full Stack Developer";
+                userState.skills = [{name: "Python", level: "Advanced"}, {name: "SQL", level: "Intermediate"}, {name: "HTML/CSS", level: "Beginner"}];
+                renderSkillTags();
+                navTo('profile');
+                addMentorMsg("Demo configuration loaded. Proceed with 'Analyze Telemetry' to view insights.", "happy");
+            } else {
+                userState.skills = [];
+                renderSkillTags();
+                navTo('profile');
+            }
+        }
+
+        // --- NAVIGATION ---
+        function navTo(viewId) {
+            document.querySelectorAll('.view-section').forEach(el => {
+                el.classList.remove('active');
+                setTimeout(() => el.style.display = 'none', 10);
+            });
+            setTimeout(() => {
+                const target = document.getElementById(`view-${viewId}`);
+                if(target) {
+                    target.style.display = 'block';
+                    target.classList.add('active');
+                }
+            }, 20);
+
+            // Update Top Stepper UI
+            const steps = ['profile', 'analysis', 'roadmap', 'brainbreak', 'assess'];
+            const idx = steps.indexOf(viewId);
+            
+            if (idx !== -1) {
+                document.getElementById('stepper-progress').style.width = `${(idx / (steps.length - 1)) * 100}%`;
+                steps.forEach((step, i) => {
+                    const icon = document.getElementById(`step-icon-${step}`);
+                    const text = document.getElementById(`step-text-${step}`);
+                    if (i < idx) {
+                        icon.className = "w-8 h-8 rounded-full bg-coral flex items-center justify-center text-white font-bold transition-all shadow-sm";
+                        icon.innerHTML = `<i data-lucide="check" class="w-4 h-4"></i>`;
+                        text.classList.remove('hidden'); text.className = "text-[11px] font-bold text-ink font-display hidden sm:block";
+                    } else if (i === idx) {
+                        icon.className = "w-8 h-8 rounded-full bg-coral flex items-center justify-center text-white font-bold transition-all shadow-md transform scale-110 ring-4 ring-blue-100";
+                        icon.innerHTML = `<i data-lucide="${getStepIcon(step)}" class="w-4 h-4"></i>`;
+                        text.className = "text-[11px] font-bold text-coral font-display hidden sm:block";
+                    } else {
+                        icon.className = "w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-slate-400 font-bold transition-all";
+                        icon.innerHTML = `<i data-lucide="${getStepIcon(step)}" class="w-4 h-4"></i>`;
+                        text.className = "text-[11px] font-semibold text-slate-400 font-display hidden sm:block";
+                    }
+                });
+                lucide.createIcons();
+            }
+        }
+
+        function getStepIcon(step) {
+            const map = { 'profile': 'user', 'analysis': 'pie-chart', 'roadmap': 'map', 'brainbreak': 'layout-grid', 'assess': 'target' };
+            return map[step] || 'circle';
+        }
+
+        function switchSidebarTab(tab) {
+            if(tab === 'mentor') {
+                document.getElementById('panel-mentor').classList.remove('hidden');
+                document.getElementById('panel-todo').classList.add('hidden');
+                document.getElementById('tab-mentor').className = 'flex-1 py-3 text-xs font-semibold border-b-2 border-coral text-coral bg-white';
+                document.getElementById('tab-todo').className = 'flex-1 py-3 text-xs font-semibold text-slate-500 hover:text-ink transition-colors border-b-2 border-transparent';
+            } else {
+                document.getElementById('panel-mentor').classList.add('hidden');
+                document.getElementById('panel-todo').classList.remove('hidden');
+                document.getElementById('tab-todo').className = 'flex-1 py-3 text-xs font-semibold border-b-2 border-teal text-teal bg-white';
+                document.getElementById('tab-mentor').className = 'flex-1 py-3 text-xs font-semibold text-slate-500 hover:text-ink transition-colors border-b-2 border-transparent';
+            }
+        }
+
+        // --- PROFILE LOGIC ---
+        function addSkillTag() {
+            const input = document.getElementById('new-skill-input');
+            const level = document.getElementById('new-skill-level');
+            const val = input.value.trim();
+            if(val && !userState.skills.find(s => s.name.toLowerCase() === val.toLowerCase())) {
+                userState.skills.push({name: val, level: level.value});
+                input.value = '';
+                renderSkillTags();
+                addXP(10);
+            }
+        }
+
+        function removeSkill(name) {
+            userState.skills = userState.skills.filter(s => s.name !== name);
+            renderSkillTags();
+        }
+
+        function renderSkillTags() {
+            const container = document.getElementById('skill-tags');
+            if(userState.skills.length === 0) {
+                container.innerHTML = '<p class="text-slate-400 text-sm w-full text-center mt-4">No skills added yet.</p>';
+                return;
+            }
+            container.innerHTML = '';
+            userState.skills.forEach(skill => {
+                let colorClass = skill.level === 'Advanced' ? 'bg-teal text-white border-transparent' : skill.level === 'Intermediate' ? 'bg-blue-50 text-coral border-blue-200' : 'bg-white text-slate-600 border-slate-200';
+                container.innerHTML += `
+                    <span class="px-3 py-1.5 ${colorClass} border rounded-md text-xs font-semibold flex items-center gap-2 shadow-sm transition-colors">
+                        ${skill.name} <span class="opacity-70 font-normal">(${skill.level})</span>
+                        <button onclick="removeSkill('${skill.name}')" class="ml-1 hover:text-red-500 transition-colors"><i data-lucide="x" class="w-3 h-3"></i></button>
+                    </span>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        // --- ANALYSIS LOGIC ---
+        async function runAnalysis() {
+            const oldTarget = userState.target;
+            userState.name = document.getElementById('input-name').value || "User";
+            userState.target = document.getElementById('input-target').value;
+            
+            document.getElementById('btn-nav-analysis').disabled = false;
+            document.getElementById('btn-nav-roadmap').disabled = false;
+            document.getElementById('btn-nav-brainbreak').disabled = false;
+            document.getElementById('btn-nav-assess').disabled = false;
+
+            navTo('loading');
+            setMascot('thinking');
+            
+            const req = CAREER_DATA[userState.target].req;
+            let matchScore = 0;
+            req.forEach(r => {
+                const s = userState.skills.find(sk => sk.name.toLowerCase() === r.toLowerCase());
+                if(s) matchScore += s.level === 'Advanced' ? 1.0 : s.level === 'Intermediate' ? 0.7 : 0.4;
+            });
+            userState.match = Math.min(100, Math.round((matchScore / req.length) * 100));
+            
+            const missing = req.filter(r => !userState.skills.find(sk => sk.name.toLowerCase() === r.toLowerCase()));
+            const improve = userState.skills.filter(s => req.includes(s.name) && s.level !== 'Advanced');
+            const strong = userState.skills.filter(s => req.includes(s.name) && s.level === 'Advanced');
+            
+            if (userState.match < 20) userState.stage = "Beginner";
+            else if (userState.match < 50) userState.stage = "Foundation";
+            else if (userState.match < 80) userState.stage = "Intermediate";
+            else userState.stage = "Job-Ready";
+
+            buildAnalysisData(req, missing, improve, strong);
+            buildRoadmapData(missing, userState.target);
+            buildAssessmentsData();
+            
+            setTimeout(() => {
+                navTo('analysis');
+                initCharts(req);
+                setMascot('happy');
+                let timeEst = Math.max(2, Math.round((100 - userState.match) / 5));
+                document.getElementById('est-time').innerText = `~${timeEst} wks`;
+                
+                const greeting = oldTarget !== userState.target 
+                    ? `Route updated. Your alignment for ${userState.target} is ${userState.match}%. Roadmap reconstructed.`
+                    : `Analysis complete, ${userState.name}. You are at the ${userState.stage} stage (${userState.match}% alignment). Review the insights on your dashboard.`;
+                addMentorMsg(greeting, "happy");
+                addXP(50);
+            }, 2000);
+        }
+
+        function buildAnalysisData(req, missing, improve, strong) {
+            document.getElementById('dash-target').innerText = userState.target;
+            
+            // Stage Tracker UI
+            const stageIdx = STAGES.indexOf(userState.stage);
+            document.getElementById('stage-line').style.width = `${(stageIdx / (STAGES.length - 1)) * 100}%`;
+            
+            let nodesHtml = '';
+            STAGES.forEach((stage, i) => {
+                let nodeClass = i < stageIdx ? 'bg-coral border-coral' : i === stageIdx ? 'bg-teal border-teal shadow-md transform scale-125 ring-2 ring-teal/30' : 'bg-white border-slate-200 text-slate-300';
+                let inner = i < stageIdx ? '<i data-lucide="check" class="w-3 h-3 text-white"></i>' : i === stageIdx ? '<i data-lucide="circle" class="w-2 h-2 text-white fill-white"></i>' : '';
+                
+                nodesHtml += `
+                    <div class="flex flex-col items-center gap-2 relative">
+                        <div class="w-6 h-6 rounded-full flex items-center justify-center border-2 ${nodeClass} z-10 transition-all">${inner}</div>
+                        <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">${stage}</span>
+                    </div>
+                `;
+            });
+            document.getElementById('stage-nodes').innerHTML = nodesHtml;
+            
+            // Cards
+            document.getElementById('list-strengths').innerHTML = strong.length ? strong.map(s => `<li>• ${s.name}</li>`).join('') : '<li class="italic text-slate-400">No advanced skills yet.</li>';
+            document.getElementById('list-improve').innerHTML = improve.length ? improve.map(s => `<li>• ${s.name}</li>`).join('') : '<li class="italic text-slate-400">All current skills optimal.</li>';
+            document.getElementById('list-gaps').innerHTML = missing.map((s, i) => `<li>• ${s} ${i===0?'<span class="text-coral text-xs">(Priority)</span>':''}</li>`).join('');
+
+            // Next Actions
+            let nextHtml = '';
+            if (missing[0]) {
+                nextHtml += `<div class="flex items-center gap-4 bg-slate-50 border border-slate-200 p-3 rounded-lg shadow-sm">
+                    <div class="w-8 h-8 rounded bg-white border border-slate-200 flex justify-center items-center font-bold text-coral text-sm">1</div>
+                    <div><h4 class="font-semibold text-sm text-ink">Acquire ${missing[0]}</h4><p class="text-xs text-slate-500">Critical dependency.</p></div>
+                </div>`;
+            }
+            if (missing[1] || improve[0]) {
+                let skillName = missing[1] || improve[0].name;
+                nextHtml += `<div class="flex items-center gap-4 bg-white border border-slate-100 p-3 rounded-lg shadow-sm">
+                    <div class="w-8 h-8 rounded bg-slate-50 border border-slate-200 flex justify-center items-center font-bold text-slate-400 text-sm">2</div>
+                    <div><h4 class="font-semibold text-sm text-ink">Develop ${skillName}</h4></div>
+                </div>`;
+            }
+            document.getElementById('next-actions-list').innerHTML = nextHtml;
+        }
+
+        // --- ROADMAP LOGIC ---
+        function buildRoadmapData(missing, target) {
+            roadmapData = [];
+            missing.forEach((skill, index) => {
+                if (skill === "JavaScript") roadmapData.push({ title: "JavaScript Core Concepts", type: "Course", diff: "Medium", desc: "Foundational requirement. Focus on execution context and async patterns.", locked: index !== 0, done: false, gap: skill });
+                else if (skill === "React") roadmapData.push({ title: "React Component Architecture", type: "Project", diff: "Hard", desc: "Construct a dynamic Single Page Application.", locked: index !== 0, done: false, gap: skill });
+                else if (skill === "Node.js") roadmapData.push({ title: "Node.js API Services", type: "Module", diff: "Medium", desc: "Backend infrastructure and routing.", locked: index !== 0, done: false, gap: skill });
+                else roadmapData.push({ title: `Mastering ${skill}`, type: "Course", diff: "Varies", desc: `Required capability.`, locked: index !== 0, done: false, gap: skill });
+            });
+            renderRoadmap();
+        }
+
+        function renderRoadmap() {
+            const container = document.getElementById('roadmap-container');
+            container.innerHTML = '';
+            let html = '';
+            roadmapData.forEach((item, i) => {
+                const isLocked = item.locked;
+                const isDone = item.done;
+                const isRefresher = item.type === "Refresher";
+                
+                let dotColor = isDone ? 'bg-teal border-teal' : (isLocked ? 'bg-slate-100 border-slate-300' : (isRefresher ? 'bg-sunshine border-sunshine' : 'bg-white border-coral ring-4 ring-blue-50'));
+                let dotInner = isDone ? '<i data-lucide="check" class="w-3 h-3 text-white"></i>' : (isLocked ? '<i data-lucide="lock" class="w-3 h-3 text-slate-400"></i>' : '<div class="w-2 h-2 rounded-full bg-coral"></div>');
+                let cardClass = isLocked ? 'opacity-60 bg-slate-50' : (isRefresher ? 'bg-amber-50/30 border-sunshine shadow-sm' : 'bg-white saas-card-hover border-slate-200');
+                
+                html += `
+                    <div class="relative flex items-start gap-4 md:gap-5 group">
+                        <div class="w-6 h-6 rounded-full ${dotColor} border-2 flex items-center justify-center z-10 shrink-0 mt-3 transition-transform ${!isLocked && 'group-hover:scale-110'} shadow-sm">
+                            ${dotInner}
+                        </div>
+                        
+                        <div class="saas-card p-5 flex-1 flex flex-col sm:flex-row justify-between gap-4 ${cardClass}">
+                            <div>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="px-2 py-0.5 bg-slate-800 text-white rounded text-[9px] font-bold uppercase tracking-wider">${item.type}</span>
+                                    <span class="px-2 py-0.5 bg-slate-100 border border-slate-200 text-slate-600 rounded text-[9px] font-bold uppercase tracking-wider">${item.diff}</span>
+                                    ${isRefresher ? '<span class="px-2 py-0.5 bg-sunshine/20 text-amber-700 border border-sunshine/30 rounded text-[9px] font-bold uppercase tracking-wider animate-pulse">Dynamic Injection</span>' : ''}
+                                </div>
+                                <h4 class="font-display font-bold text-lg mb-1 text-ink ${isDone ? 'strike-through' : ''}">${item.title}</h4>
+                                <p class="text-xs font-medium text-slate-500">${item.desc}</p>
+                            </div>
+                            
+                            <div class="flex flex-col gap-2 justify-center shrink-0">
+                                ${!isLocked && !isDone ? `<button onclick="markRoadmapDone(${i})" class="saas-btn bg-teal text-white px-4 py-2 text-xs flex items-center justify-center gap-1.5"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Mark Complete</button>` : ''}
+                                ${isDone ? `<span class="px-4 py-2 bg-emerald-50 border border-emerald-200 text-teal font-semibold rounded-lg text-xs flex items-center justify-center gap-1.5"><i data-lucide="check-square" class="w-3.5 h-3.5"></i> Verified</span>` : ''}
+                                ${!isLocked ? `<button onclick="addTodoFromRoadmap('${item.title}')" class="saas-btn bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-4 py-2 text-xs flex items-center justify-center gap-1.5"><i data-lucide="list-plus" class="w-3.5 h-3.5"></i> Add Task</button>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            lucide.createIcons();
+        }
+
+        function markRoadmapDone(i) {
+            roadmapData[i].done = true;
+            if(roadmapData[i+1]) roadmapData[i+1].locked = false;
+            addXP(200);
+            showToast("Module Verified. +200 XP");
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#2563EB', '#0D9488', '#F59E0B'] });
+            renderRoadmap();
+            
+            if(i === 0 && !userState.hasFailedQuiz) {
+                addMentorMsg("Initial module complete. Proceed to the 'Assess' tab to formally validate your competency.", "happy");
+                document.getElementById('btn-nav-assess').classList.add('animate-pulse', 'ring-2', 'ring-coral', 'rounded-full');
+            }
+        }
+
+        // --- CHARTS (SaaS style) ---
+        function initCharts(req) {
+            Chart.defaults.color = '#64748B';
+            Chart.defaults.font.family = 'Inter';
+            Chart.defaults.font.weight = '500';
+
+            // Radar
+            const ctxR = document.getElementById('radarChart');
+            if(radarChart) radarChart.destroy();
+            const labels = req.slice(0, 6);
+            const dataVals = labels.map(r => {
+                const s = userState.skills.find(sk => sk.name.toLowerCase() === r.toLowerCase());
+                return s ? (s.level === 'Advanced' ? 100 : s.level === 'Intermediate' ? 60 : 30) : 10;
+            });
+
+            radarChart = new Chart(ctxR, {
+                type: 'radar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Your Level', data: dataVals,
+                        backgroundColor: 'rgba(37, 99, 235, 0.15)', borderColor: '#2563EB',
+                        pointBackgroundColor: '#2563EB', pointBorderColor: '#FFFFFF', pointBorderWidth: 2, borderWidth: 2,
+                    }, {
+                        label: 'Required Target', data: [100, 100, 100, 100, 100, 100],
+                        backgroundColor: 'transparent', borderColor: '#94A3B8', borderDash: [4, 4], borderWidth: 1, pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { r: { angleLines: { color: '#E2E8F0' }, grid: { color: '#E2E8F0', lineWidth: 1 }, ticks: { display: false, max: 100, min: 0 } } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Match Gauge
+            const ctxD = document.getElementById('matchGauge');
+            if(doughnutChart) doughnutChart.destroy();
+            let displayScore = 0;
+            const targetScore = userState.match;
+            
+            doughnutChart = new Chart(ctxD, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Aligned', 'Gap'],
+                    datasets: [{
+                        data: [0, 100],
+                        backgroundColor: ['#2563EB', '#F1F5F9'],
+                        borderColor: '#FFFFFF', borderWidth: 2, cutout: '75%',
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, animation: { duration: 0 } }
+            });
+
+            const animInterval = setInterval(() => {
+                if (displayScore >= targetScore) { clearInterval(animInterval); return; }
+                displayScore += 2; if(displayScore > targetScore) displayScore = targetScore;
+                document.getElementById('match-score-text').innerText = `${displayScore}%`;
+                doughnutChart.data.datasets[0].data = [displayScore, 100 - displayScore];
+                doughnutChart.update();
+            }, 20);
+        }
+
+        // --- ADAPTIVE QUIZ ---
+        function buildAssessmentsData() {
+            let html = '';
+            if (roadmapData.length > 0) {
+                let firstGap = roadmapData[0].gap || "Fundamentals";
+                html += `
+                    <div class="saas-card p-6 bg-white border border-slate-200">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="px-2 py-1 bg-slate-100 text-slate-600 font-semibold text-[10px] uppercase rounded tracking-wider">Required Check</span>
+                            <i data-lucide="lock-open" class="w-5 h-5 text-slate-400"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-lg mb-1 text-ink">${firstGap} Validation</h3>
+                        <p class="text-xs text-slate-500 mb-6 leading-relaxed">Prove your competency to unlock subsequent roadmap modules.</p>
+                        <button onclick="startQuiz()" class="w-full py-2.5 bg-ink text-white saas-btn text-sm">Initiate Assessment</button>
+                    </div>
+                `;
+            }
+            document.getElementById('assessment-list').innerHTML = html;
+            lucide.createIcons();
+        }
+
+        function startQuiz() {
+            document.getElementById('btn-nav-assess').classList.remove('animate-pulse', 'ring-2', 'ring-coral', 'rounded-full');
+            document.getElementById('assessment-list').style.display = 'none';
+            document.getElementById('quiz-ui').style.display = 'block';
+        }
+
+        function submitAnswer(isCorrect) {
+            userState.hasFailedQuiz = true; // Force fail for demo
+            
+            document.getElementById('quiz-ui').style.display = 'none';
+            document.getElementById('assessment-list').style.display = 'grid';
+            const overlay = document.getElementById('adaptive-overlay');
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+            setMascot('thinking');
+            
+            // Adapt Roadmap
+            let gapToFix = roadmapData[0]?.gap || "JavaScript";
+            roadmapData.unshift({ 
+                title: `Remedial: ${gapToFix} Principles`, 
+                type: "Refresher", diff: "Easy", desc: "Automatically injected to solidify core concepts.", 
+                locked: false, done: false, gap: gapToFix
+            });
+            renderRoadmap();
+
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+                overlay.classList.remove('flex');
+                setMascot('happy');
+                addMentorMsg(`Diagnostic results: 33%. Neural adjustments applied. I have injected a prerequisite remedial module into your curriculum. Proceed to the Roadmap.`, "neutral");
+                navTo('roadmap');
+            }, 3500);
+        }
+
+        // --- BRAIN BREAK (GAMES) ---
+        function switchGame(gameId) {
+            document.querySelectorAll('.game-view').forEach(el => { el.classList.remove('active'); el.classList.add('hidden'); });
+            document.getElementById(`game-${gameId}`).classList.remove('hidden');
+            document.getElementById(`game-${gameId}`).classList.add('active');
+            if(gameId === 'memory') initMemoryGame();
+            if(gameId === 'trivia') initTrivia();
+        }
+
+        // Memory Match
+        const memoryIcons = ['braces', 'terminal', 'database', 'cpu', 'cloud', 'code'];
+        let memCards = [], flipped = [], matched = 0;
+        function initMemoryGame() {
+            const grid = document.getElementById('memory-grid');
+            memCards = [...memoryIcons, ...memoryIcons].sort(() => Math.random() - 0.5);
+            flipped = []; matched = 0;
+            grid.innerHTML = memCards.map((icon, i) => `
+                <div class="h-20 bg-slate-100 border border-slate-200 rounded-xl flex items-center justify-center cursor-pointer transition-transform transform active:scale-95 shadow-sm" onclick="flipCard(${i}, this)" data-icon="${icon}" id="card-${i}">
+                    <i data-lucide="help-circle" class="w-6 h-6 text-slate-400" id="icon-${i}"></i>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+        function flipCard(i, el) {
+            if (flipped.length === 2 || el.classList.contains('matched') || flipped.includes(i)) return;
+            el.classList.add('bg-white', 'border-coral'); el.classList.remove('bg-slate-100', 'border-slate-200');
+            document.getElementById(`icon-${i}`).setAttribute('data-lucide', memCards[i]);
+            lucide.createIcons();
+            flipped.push(i);
+            if (flipped.length === 2) setTimeout(checkMatch, 600);
+        }
+        function checkMatch() {
+            const [i1, i2] = flipped;
+            const el1 = document.getElementById(`card-${i1}`), el2 = document.getElementById(`card-${i2}`);
+            if (memCards[i1] === memCards[i2]) {
+                el1.classList.add('matched', 'bg-teal', 'border-teal'); 
+                el1.classList.remove('bg-white', 'border-coral');
+                el1.querySelector('i').classList.add('text-white'); el1.querySelector('i').classList.remove('text-slate-400');
+                
+                el2.classList.add('matched', 'bg-teal', 'border-teal');
+                el2.classList.remove('bg-white', 'border-coral');
+                el2.querySelector('i').classList.add('text-white'); el2.querySelector('i').classList.remove('text-slate-400');
+                
+                matched += 2;
+                if (matched === memCards.length) {
+                    addXP(100); showToast("Module cleared! +100 XP"); confetti();
+                    addMentorMsg("Cognitive exercise complete. Recommend returning to core curriculum.", "happy");
+                }
+            } else {
+                el1.classList.add('bg-slate-100', 'border-slate-200'); el1.classList.remove('bg-white', 'border-coral');
+                el2.classList.add('bg-slate-100', 'border-slate-200'); el2.classList.remove('bg-white', 'border-coral');
+                document.getElementById(`icon-${i1}`).setAttribute('data-lucide', 'help-circle');
+                document.getElementById(`icon-${i2}`).setAttribute('data-lucide', 'help-circle');
+                lucide.createIcons();
+            }
+            flipped = [];
+        }
+
+        // Trivia
+        const trivias = [{q: "What does HTML stand for?", opts: ["Hyper Text Markup Language", "Hot Mail", "Hyperlinks and Text"], a: 0}];
+        function initTrivia() {
+            document.getElementById('trivia-q').innerText = trivias[0].q;
+            document.getElementById('trivia-opts').innerHTML = trivias[0].opts.map((opt, i) => `
+                <button onclick="checkTrivia(${i})" class="w-full text-left p-4 bg-white border border-slate-200 rounded-lg hover:border-coral transition-colors text-sm font-medium">${opt}</button>
+            `).join('');
+        }
+        function checkTrivia(i) {
+            if(i === trivias[0].a) { addXP(50); showToast("Verified! +50 XP"); confetti(); addMentorMsg("Accuracy confirmed.", "happy"); }
+            else { showToast("Incorrect evaluation."); addMentorMsg("Correction: HTML denotes Hyper Text Markup Language.", "neutral"); }
+        }
+
+        // Scramble
+        function checkScramble() {
+            const val = document.getElementById('scramble-input').value.toUpperCase();
+            if(val === 'REACT') {
+                addXP(50); showToast("Verified! +50 XP"); confetti();
+                document.getElementById('scramble-input').value = "";
+            } else { showToast("Invalid string."); }
+        }
+
+        // --- TO-DO LOGIC ---
+        function renderTodos() {
+            const list = document.getElementById('todo-list');
+            list.innerHTML = todoData.map((t, i) => `
+                <div class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
+                    <input type="checkbox" class="saas-checkbox" ${t.done ? 'checked' : ''} onchange="toggleTodo(${t.id})">
+                    <span class="flex-1 font-medium text-xs ${t.done ? 'strike-through' : 'text-slate-700'}">${t.text}</span>
+                    <button onclick="deleteTodo(${t.id})" class="text-slate-400 hover:text-red-500 transition-colors"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                </div>
+            `).join('');
+            lucide.createIcons();
+            updateTodoProgress();
+            localStorage.setItem('pathforge_todos', JSON.stringify(todoData));
+        }
+        function addTodo() {
+            const input = document.getElementById('todo-input');
+            if(input.value.trim()) {
+                todoData.push({ id: Date.now(), text: input.value.trim(), done: false });
+                input.value = ''; renderTodos();
+            }
+        }
+        function addTodoFromRoadmap(text) {
+            todoData.push({ id: Date.now(), text: text, done: false });
+            renderTodos();
+            showToast("Task imported successfully.");
+            switchSidebarTab('todo');
+            if(!isMentorOpen) toggleMentorPanel();
+        }
+        function toggleTodo(id) {
+            const t = todoData.find(x => x.id === id); if(t) t.done = !t.done; renderTodos();
+            if(t.done) { addXP(10); showToast("Task executed. +10 XP"); }
+        }
+        function deleteTodo(id) { todoData = todoData.filter(x => x.id !== id); renderTodos(); }
+        function updateTodoProgress() {
+            const total = todoData.length;
+            const done = todoData.filter(t => t.done).length;
+            const pct = total === 0 ? 0 : (done / total) * 100;
+            document.getElementById('todo-progress').style.width = `${pct}%`;
+        }
+
+        // --- MENTOR CHAT ---
+        function setMascot(exp) {
+            const mouth = document.getElementById('mascot-mouth');
+            if(!mouth) return;
+            if(exp === 'happy') mouth.setAttribute('r', '18');
+            else if(exp === 'neutral') mouth.setAttribute('r', '15');
+            else if(exp === 'thinking') mouth.setAttribute('r', '12'); 
+        }
+
+        function addMentorMsg(text, exp = "neutral") {
+            setMascot(exp);
+            const feed = document.getElementById('mentor-chat-feed');
+            const typeId = 'type-' + Date.now();
+            feed.innerHTML += `
+                <div id="${typeId}" class="flex gap-2 max-w-[90%]">
+                    <div class="bg-white border border-slate-200 p-3 rounded-2xl rounded-tl-none shadow-sm flex gap-1 items-center h-8">
+                        <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+                    </div>
+                </div>
+            `;
+            feed.scrollTop = feed.scrollHeight;
+
+            setTimeout(() => {
+                const typeEl = document.getElementById(typeId); if(typeEl) typeEl.remove();
+                feed.innerHTML += `
+                    <div class="flex gap-2 max-w-[95%] animate-pop-in">
+                        <div class="bg-white border border-slate-200 p-3 rounded-2xl rounded-tl-none shadow-sm text-xs font-medium text-ink leading-relaxed">
+                            ${text}
+                        </div>
+                    </div>
+                `;
+                feed.scrollTop = feed.scrollHeight;
+                
+                // Show notification dot if panel is closed
+                if (!isMentorOpen) {
+                    document.getElementById('fab-dot').classList.remove('hidden');
+                }
+            }, 1000);
+        }
+
+        function sendChat(preset = null) {
+            const input = document.getElementById('mentor-input');
+            const text = preset || input.value;
+            if(!text.trim()) return;
+            input.value = '';
+            
+            const feed = document.getElementById('mentor-chat-feed');
+            feed.innerHTML += `
+                <div class="flex gap-2 max-w-[90%] self-end ms-auto animate-pop-in mt-2">
+                    <div class="bg-coral text-white p-3 rounded-2xl rounded-tr-none shadow-sm text-xs font-semibold leading-relaxed">${text}</div>
+                </div>
+            `;
+            feed.scrollTop = feed.scrollHeight;
+            setMascot('thinking');
+
+            // Smart Rules
+            let response = "Acknowledged. I recommend consulting your Task List or the active Curriculum module.";
+            const lower = text.toLowerCase();
+            if (lower.includes("why is my match score low") || lower.includes("why")) {
+                response = `Current alignment is ${userState.match}% due to missing market-required competencies for ${userState.target}. The Roadmap resolves these deficiencies.`;
+            } else if (lower.includes("what") || lower.includes("today") || lower.includes("learn")) {
+                response = `Current directive: Execute the highest-priority item on your Roadmap. Import it to your Task List and allocate 25 minutes of deep focus.`;
+            } else if (lower.includes("break") || lower.includes("tired")) {
+                response = "Cognitive fatigue detected. Navigate to 'Modules' and execute a low-intensity Brain Break exercise to reset.";
+                document.getElementById('btn-nav-brainbreak').classList.add('animate-pulse', 'ring-2', 'ring-coral', 'rounded-full');
+            } else if (lower.includes("roadmap")) {
+                response = "Curriculum architecture is strictly sequential. Locked dependencies require verification of preceding modules.";
+            }
+
+            addMentorMsg(response, "happy");
+        }
+
+        // --- UTILS ---
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.style.transform = 'translate(-50%, 0)'; toast.style.opacity = '1';
+            setTimeout(() => { toast.style.transform = 'translate(-50%, -24px)'; toast.style.opacity = '0'; }, 3000);
+        }
+        function addXP(amount) {
+            userState.xp += amount;
+            if(userState.xp >= 500) { userState.level++; userState.xp -= 500; showToast(`Clearance Upgraded. Level ${userState.level}`); }
+            document.getElementById('ui-xp').innerText = `${userState.xp} XP`;
+            document.getElementById('ui-level').innerText = userState.level;
+        }
+
+    </script>
+</body>
+</html>
